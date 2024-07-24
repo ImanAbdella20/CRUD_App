@@ -1,11 +1,7 @@
-import asyncHandler from 'express-async-handler'//not to write try catch for all
+import asyncHandler from 'express-async-handler';
 import Contact from "../models/contactModel.js";
 
-// describe get all contact
-// route get /
-// access private
-// inorder to use mongoDB there should be a use promise/async/await
-
+// Get all contacts for the logged-in user
 const getContact = asyncHandler(async (req, res) => {
     console.log("The user is:", req.user); // Log the user information
 
@@ -19,6 +15,7 @@ const getContact = asyncHandler(async (req, res) => {
     }
 });
 
+// Create a new contact for the logged-in user
 const createContact = asyncHandler(async (req, res) => {
     console.log("The request body is:", req.body);
     console.log("The user is:", req.user); // Log the user information
@@ -33,7 +30,7 @@ const createContact = asyncHandler(async (req, res) => {
         name,
         email,
         phone,
-        user_id: req.user.id // Use the user ID
+        user_id: req.user._id // Use the user ID
     });
 
     const createdContact = await contact.save();
@@ -41,56 +38,56 @@ const createContact = asyncHandler(async (req, res) => {
     res.status(200).json(createdContact);
 });
 
+// Update a contact for the logged-in user
+const updateContact = asyncHandler(async (req, res) => {
+    const contact = await Contact.findById(req.params.id);
 
-const updateContact = asyncHandler(async(req, res) => {
-
-    const contact =  await Contact.findById(req.params.id)
-
-    if(!contact){
-       res.status(404);
-        throw new Error("Contact not found")
+    if (!contact) {
+        res.status(404);
+        throw new Error("Contact not found");
     }
 
-    if(contact.user_id.toString()!== req.user.id){
+    if (contact.user_id.toString() !== req.user._id.toString()) {
         res.status(403);
-        throw new Error("user dont have permission to update another contact! ")
+        throw new Error("User does not have permission to update another user's contact!");
     }
 
-    const updateContact = await Contact.findByIdAndUpdate(
+    const updatedContact = await Contact.findByIdAndUpdate(
         req.params.id,
         req.body,
-        {new:true})
-    res.status(200).json(updateContact);
+        { new: true }
+    );
+    res.status(200).json(updatedContact);
 });
 
-const deleteContact = asyncHandler(async(req, res) => {
+// Delete a contact for the logged-in user
+const deleteContact = asyncHandler(async (req, res) => {
+    const contact = await Contact.findById(req.params.id);
 
-    const contact =  await Contact.findById(req.params.id)
-
-    if(!contact){
-       res.status(404);
-        throw new Error("Contact not found")
+    if (!contact) {
+        res.status(404);
+        throw new Error("Contact not found");
     }
 
-    if(contact.user_id.toString()!== req.user.id){
+    if (contact.user_id.toString() !== req.user._id.toString()) {
         res.status(403);
-        throw new Error("user dont have permission to delete another contact! ")
+        throw new Error("User does not have permission to delete another user's contact!");
     }
 
-    await Contact.remove()
-    res.status(200).json(contact);
+    await contact.remove();
+    res.status(200).json({ message: "Contact removed" });
 });
 
-const getIndividualContact = asyncHandler(async(req, res) => {
-    const contact =  await Contact.findById(req.params.id)
+// Get an individual contact for the logged-in user
+const getIndividualContact = asyncHandler(async (req, res) => {
+    const contact = await Contact.findById(req.params.id);
 
-    if(!contact){
-       res.status(404);
-        throw new Error("Contact not found")
+    if (!contact) {
+        res.status(404);
+        throw new Error("Contact not found");
     }
     console.log("Contact found:", contact);
     res.status(200).json(contact);
-   
 });
 
 // Export all functions in a single object
