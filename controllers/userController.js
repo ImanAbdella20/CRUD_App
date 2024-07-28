@@ -1,7 +1,7 @@
-import asyncHandler from 'express-async-handler'
-import User from '../models/userModel.js'
-import bcrypt from 'bcrypt'
-import jwt from 'jsonwebtoken'
+import asyncHandler from 'express-async-handler';
+import User from '../models/userModel.js';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 //user register
 
 const registerUser = asyncHandler(async (req, res) => {
@@ -64,13 +64,13 @@ const loginUser = asyncHandler (async (req, res) =>{
       res.status(200).json({accessToken});  
     }else{
         res.status(401);
-        throw new Error("email or password is invalid")
+        throw new Error("email or password is invalid");
     }
-    res.json({message:"Login user"})
+    res.json({message:"Login user"});
 })
 
 const currentUser = asyncHandler (async (req, res) =>{
-    res.json(req.user)
+    res.json(req.user);
 })
 
-export default {registerUser, loginUser, currentUser}
+export default {registerUser, loginUser, currentUser};
